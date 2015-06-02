@@ -24,7 +24,7 @@ EventProxy.prototype.clear = function (eventname) {
  * @param {String} eventname Event name
  * @param {Mix} data Pass in data
  */
-EventProxy.prototype.emit = function (eventname, data) {
+EventProxy.prototype.fire = function (eventname, data) {
   var list, ev, callback, i, l;
   var both = 2;
   var calls = this._callbacks;
@@ -46,8 +46,7 @@ EventProxy.prototype.emit = function (eventname, data) {
           }
           callback.apply(this, args);
         }
-      }
-    
+      }    
   }
   return this;
 };
@@ -57,7 +56,7 @@ EventProxy.prototype.done = function (handler, callback) {
   return function (err, data) {
     if (err) {
       // put all arguments to the error handler
-      return that.emit.apply(that, ['error'].concat(SLICE.call(arguments)));
+      return that.fire.apply(that, ['error'].concat(SLICE.call(arguments)));
     }
 
     // callback(err, args1, args2, ...)
@@ -71,13 +70,13 @@ EventProxy.prototype.done = function (handler, callback) {
       // }));
       if (callback) {
         // only replace the args when it really return a result
-        return that.emit(handler, callback.apply(null, args));
+        return that.fire(handler, callback.apply(null, args));
       } else {
         // put all arguments to the done handler
         //ep.done('some');
         //ep.on('some', function(args1, args2, ...){});
-        // emit(handle,arg1,arg2,arg3)
-        return that.emit.apply(that, [handler].concat(args));
+        // fire(handle,arg1,arg2,arg3)
+        return that.fire.apply(that, [handler].concat(args));
       }
     }
 
