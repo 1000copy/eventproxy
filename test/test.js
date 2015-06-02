@@ -53,7 +53,7 @@ describe("EventProxy", function () {
     });
   });
 
-  it('create on line ways', function () {
+  it('1.create on line ways', function () {
     var counter = 0;
     var ep = EventProxy.create('event', function (data) {
       counter += 1;
@@ -237,6 +237,7 @@ describe("EventProxy", function () {
   });
 
   describe('after', function () {
+    // 事件发生N次后在执行callback
     it('after, n times', function () {
       var ep = EventProxy.create();
       var n = Math.round(Math.random() * 100) + 1;
@@ -259,7 +260,7 @@ describe("EventProxy", function () {
       ep.trigger('event', n);
       assert.deepEqual(counter, 1, 'counter should have only been incremented once.');
     });
-
+    //同上
     it('after, 1 time', function () {
       var ep = EventProxy.create();
 
@@ -273,7 +274,7 @@ describe("EventProxy", function () {
       ep.trigger('event', "1 time");
       assert.deepEqual(counter, 1, 'counter should have only been incremented once.');
     });
-
+    //同上
     it('after, 0 time', function () {
       var obj = new EventProxy();
       var counter = 0;
@@ -283,7 +284,8 @@ describe("EventProxy", function () {
       });
       assert.deepEqual(counter, 1, 'counter should be incremented.');
     });
-
+    // 在after的回调函数中，结果顺序是与用户emit的顺序有关。
+    // 要想返回数据按发起异步调用的顺序排列，EventProxy提供了group方法。
     it('after/group', function (done) {
       var obj = new EventProxy();
       var input = [1, 2, 3, 4, 5];
@@ -395,6 +397,17 @@ describe("EventProxy", function () {
     ep.trigger('event1', null, 2);
     assert.deepEqual(counter, 3, 'counter should be incremented.');
   });
+  it('done10(fn)', function () {
+    var ep = EventProxy.create();
+    var counter = 0;
+    var done = function (num) {
+      counter += num;
+    };
+    ep.bind('event1', ep.done(done));
+    assert.deepEqual(counter, 0);
+    ep.trigger('event1', null, 10);
+    assert.deepEqual(counter, 10);    
+  });
 
   it('done(event)', function (done) {
     var ep = EventProxy.create();
@@ -405,6 +418,12 @@ describe("EventProxy", function () {
     ep.bind('error', done);
     fs.readFile(__filename, ep.done('event1'));
   });
+   // concat链接两个数组 
+  // var hege = ["Cecilie", "Lone"];
+  // var stale = ["Emil", "Tobias", "Linus"];
+  // var children = hege.concat(stale);
+  // The values of the children array will be:
+  // Cecilie,Lone,Emil,Tobias,Linus
 
   it('done(event, fn)', function (done) {
     var ep = EventProxy.create();
